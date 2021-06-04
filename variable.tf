@@ -18,6 +18,11 @@ variable "contname" {
 	
 }
 
+variable "mastname" {
+	 default = "master"
+	
+}
+
 variable "contsize" {
 	 default = "Standard_D2a_V4"
 	
