@@ -1,18 +1,15 @@
 resource "azurerm_linux_virtual_machine" "workhardway" {
-  count               = 3
-  name                = "${var.workname}-${random_id.prefix[count.index].id}"
-  resource_group_name = azurerm_resource_group.hardway.name
-  location            = azurerm_resource_group.hardway.location
-  size                = var.contsize
-  admin_username      = "damian"
+  count                           = 3
+  name                            = "${var.workname}-${random_id.prefix[count.index].id}"
+  resource_group_name             = azurerm_resource_group.hardway.name
+  location                        = azurerm_resource_group.hardway.location
+  size                            = var.contsize
+  admin_username                  = "kube"
+  admin_password                  = random_password.secret.result
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.workhardway[count.index].id,
   ]
-
-  admin_ssh_key {
-    username   = "damian"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
 
   os_disk {
     caching              = "ReadWrite"

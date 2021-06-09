@@ -7,7 +7,6 @@ resource "azurerm_linux_virtual_machine" "mainhardway" {
   admin_username      = "damian"
   network_interface_ids = [
     azurerm_network_interface.piphardway.id,
-    # azurerm_network_interface.mainhardway.id,
   ]
 
 
@@ -31,20 +30,17 @@ resource "azurerm_linux_virtual_machine" "mainhardway" {
   }
 }
 resource "azurerm_linux_virtual_machine" "controlhardway" {
-  count               = 2
-  name                = "${var.contname}-${random_id.prefix[count.index].id}"
-  resource_group_name = azurerm_resource_group.hardway.name
-  location            = azurerm_resource_group.hardway.location
-  size                = var.contsize
-  admin_username      = "damian"
+  count                           = 2
+  name                            = "${var.contname}-${random_id.prefix[count.index].id}"
+  resource_group_name             = azurerm_resource_group.hardway.name
+  location                        = azurerm_resource_group.hardway.location
+  size                            = var.contsize
+  admin_username                  = "kube"
+  admin_password                  = random_password.secret.result
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.controlhardway[count.index].id,
   ]
-
-  admin_ssh_key {
-    username   = "damian"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
 
   os_disk {
     caching              = "ReadWrite"
