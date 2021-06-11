@@ -1,39 +1,37 @@
 resource "random_id" "prefix" {
-	count 			= 5
+  count       = 5
   byte_length = 4
+}
+
+resource "random_password" "secret" {
+  length           = 16
+  special          = true
+  min_lower        = 4
+  min_numeric      = 4
+  min_special      = 4
+  min_upper        = 4
+  override_special = "_%+-*"
 }
 
 resource "azurerm_resource_group" "hardway" {
   name     = var.name
   location = var.location
-  tags 		 = var.tag
+  tags     = var.tag
 }
 resource "azurerm_virtual_network" "hardway" {
   name                = "${var.name}-us-vnet01"
   location            = azurerm_resource_group.hardway.location
   resource_group_name = azurerm_resource_group.hardway.name
   address_space       = ["10.200.0.0/24"]
-  tags 								= var.tag
+  tags                = var.tag
 }
 
 resource "azurerm_subnet" "hardway" {
-  name           				= "${var.name}-services"
-  address_prefixes 			= ["10.200.0.0/25"]
-  virtual_network_name 	= azurerm_virtual_network.hardway.name
-	resource_group_name 	= azurerm_resource_group.hardway.name
+  name                 = "${var.name}-services"
+  address_prefixes     = ["10.200.0.0/25"]
+  virtual_network_name = azurerm_virtual_network.hardway.name
+  resource_group_name  = azurerm_resource_group.hardway.name
 
-}
-
-resource "azurerm_network_security_group" "hardway" {
-  name                = "${var.name}-nsg"
-  location            = azurerm_resource_group.hardway.location
-  resource_group_name = azurerm_resource_group.hardway.name
-  tags 								= var.tag
-}
-
-resource "azurerm_subnet_network_security_group_association" "hardway" {
-  subnet_id                 = azurerm_subnet.hardway.id
-  network_security_group_id = azurerm_network_security_group.hardway.id
 }
 
 resource "azurerm_public_ip" "hardway" {
@@ -41,7 +39,7 @@ resource "azurerm_public_ip" "hardway" {
   resource_group_name = azurerm_resource_group.hardway.name
   location            = azurerm_resource_group.hardway.location
   allocation_method   = "Static"
-	tags 								= var.tag
+  tags                = var.tag
 }
 
 data "azurerm_client_config" "current" {}
@@ -57,7 +55,7 @@ resource "azurerm_key_vault" "hardway" {
   enabled_for_deployment          = true
   enabled_for_template_deployment = true
   soft_delete_enabled             = true
-  sku_name 												= "standard"
+  sku_name                        = "standard"
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
@@ -126,6 +124,7 @@ resource "azurerm_key_vault" "hardway" {
       "get",
       "list",
       "Set",
+      "Delete",
     ]
 
     storage_permissions = [
@@ -139,4 +138,14 @@ resource "azurerm_key_vault" "hardway" {
     ]
 
   }
+}
+
+resource "azurerm_key_vault_secret" "secret" {
+  key_vault_id = azurerm_key_vault.hardway.id
+  name         = "nodes-password"
+  value        = random_password.secret.result
+  tags         = var.tag
+  depends_on = [
+    azurerm_key_vault.hardway,
+  ]
 }
