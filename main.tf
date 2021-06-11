@@ -34,18 +34,6 @@ resource "azurerm_subnet" "hardway" {
 
 }
 
-resource "azurerm_network_security_group" "hardway" {
-  name                = "${var.name}-nsg"
-  location            = azurerm_resource_group.hardway.location
-  resource_group_name = azurerm_resource_group.hardway.name
-  tags                = var.tag
-}
-
-resource "azurerm_subnet_network_security_group_association" "hardway" {
-  subnet_id                 = azurerm_subnet.hardway.id
-  network_security_group_id = azurerm_network_security_group.hardway.id
-}
-
 resource "azurerm_public_ip" "hardway" {
   name                = "${var.name}-pip"
   resource_group_name = azurerm_resource_group.hardway.name
