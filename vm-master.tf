@@ -1,5 +1,4 @@
 resource "azurerm_linux_virtual_machine" "mainhardway" {
-  count               = 1
   name                = "${var.mastname}-node"
   resource_group_name = azurerm_resource_group.hardway.name
   location            = azurerm_resource_group.hardway.location
